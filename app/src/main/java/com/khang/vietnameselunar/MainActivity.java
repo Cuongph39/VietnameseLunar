@@ -1,5 +1,7 @@
 package com.khang.vietnameselunar;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,6 +15,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,7 +27,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -39,12 +42,16 @@ public class MainActivity extends AppCompatActivity {
     /**
      * The {@link ViewPager} that will host the section contents.
      */
+
+    private Context mContext;
     private ViewPager mViewPager;
+    private TextView btnChangeDay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mContext = this;
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_IMMERSIVE
@@ -64,16 +71,19 @@ public class MainActivity extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setCurrentItem(50,true);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
 
+        btnChangeDay = (TextView)findViewById(R.id.btnChange);
+        btnChangeDay.setOnClickListener(this);
     }
 
 
@@ -92,6 +102,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(View view) {
+        int id = view.getId();
+
+        switch (id) {
+            case R.id.btnChange:
+                new DialogConvertCalendar(mContext).show();
+        }
     }
 
     /**
@@ -132,21 +152,14 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             Bundle args = getArguments();
-            imgIdx = args.getInt(ARG_SECTION_NUMBER, 0);
-
-            if (imgIdx == 24) {
-                imgIdx = 1;
-            }
-
+            imgIdx = args.getInt(ARG_SECTION_NUMBER, 0)-1;
+            imgIdx = imgIdx%23;
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            //rootView.setBackground(ContextCompat.getDrawable(getContext(), imagesID[imgIdx-1]));
             imageView = (ImageView)rootView.findViewById(R.id.imgView);
-
             GlideApp.with(getContext())
-                    .load(ContextCompat.getDrawable(getContext(), imagesID[imgIdx-1]))
+                    .load(imagesID[imgIdx])
                     .centerCrop()
                     .into(imageView);
-
             return rootView;
         }
     }
@@ -165,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
+            Log.d("xxx", "load anh" + (position + 1));
             return PlaceholderFragment.newInstance(position + 1);
         }
 
